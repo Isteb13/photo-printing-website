@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo & Document Print</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7e3f7;
+      color: #333;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: #d45d6f;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: linear-gradient(to bottom, #f5a0b4, #fae6f3);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    footer {
+      text-align: right;
+      padding: 15px 25px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    label {
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: #8e4b68;
+    }
+
+    input[type="name"],
+    input[type="phone"],
+    input[type="email"] {
+      width: 95%;
+      padding: 10px;
+      border: 2px solid #d45d6f;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      background-color: #fff;
+      color: #333;
+      text-align: left;
+    }
+
+    select,
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #d45d6f;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      background-color: #fff;
+      color: #333;
+    }
+
+    input[type="name"]:focus,
+    input[type="email"]:focus,
+    input[type="phone"]:focus,
+    select:focus,
+    textarea:focus,
+    input[type="file"]:focus {
+      outline: none;
+      border-color: #d45d6f;
+      background-color: #fce7eb;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button[type="submit"] {
+      background-color: #e34f68;
+      color: white;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #b64c5a;
+    }
+
+    button[type="submit"]:active {
+      background-color: #9a3f4b;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      form {
+        width: 100%;
+        padding: 15px;
+      }
+    }
+
+    /* 🔄 Spinner loader */
+    #loading {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .spinner {
+      margin: 0 auto 10px;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e34f68;
+      border-top: 4px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📤 Upload Files for Printing</h2>
+
+  <form id="orderForm" enctype="multipart/form-data">
+    <label for="name">Name:</label>
+    <input type="name" id="name" name="name" required><br>
+
+    <label for="phone">Phone Number:</label>
+    <input type="phone" id="phone" name="phone" required><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br>
+
+    <label for="size">Choose Size:</label>
+    <select name="size" required>
+      <option value="Choose">Choose</option>
+      <option value="A4">A4</option>
+      <option value="Letter">Letter</option>
+      <option value="4R">4R (Photo)</option>
+      <option value="5R">5R (Photo)</option>
+      <option value="1x1">1x1 (Photo)</option>
+      <option value="2x2">2x2 (Photo)</option>
+      <option value="Passport Size">Passport Size (Photo)</option>
+    </select><br>
+
+    <label for="colors">Choose Colors:</label>
+    <select name="colors" required>
+      <option value="Choose">Choose</option>
+      <option value="Colored">Colored</option>
+      <option value="Black and White">Black and White</option>
+    </select><br>
+
+    <label for="comments">Comments / Instructions:</label>
+    <textarea name="comments" id="comments" rows="4" placeholder="Any special instructions?"></textarea><br>
+
+    <label for="files">Upload Pictures or Documents (you can select multiple files):</label>
+    <input type="file" name="files" id="files" multiple required><br>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>⏳ Submitting your order... Please wait.</p>
+  </div>
+
+  <footer>
+    &copy; 2025 Photo & Document Print
+  </footer>
+
+  <script>
+    const form = document.getElementById('orderForm');
+    const fileInput = document.getElementById('files');
+    const loading = document.getElementById('loading');
+
+    // Show file names as alert
+    fileInput.addEventListener('change', () => {
+      const fileList = [...fileInput.files].map(file => `• ${file.name}`).join('\n');
+      alert(`📁 Selected files:\n\n${fileList}`);
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      loading.style.display = 'block';
+      form.style.display = 'none';
+
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.ok) {
+          window.location.href = '/confirmation.html';
+        } else {
+          alert('❌ Something went wrong while submitting.');
+          form.style.display = 'block';
+          loading.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('❌ Error:', err);
+        alert('❌ Submission failed. Please try again.');
+        form.style.display = 'block';
+        loading.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>
